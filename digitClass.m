@@ -27,8 +27,7 @@ Y = cellstr(num2str(Label)); % We need a cell to used the ClassName parameter in
 %%
 % Baseline Evalutation
 
-[a, labelItera] = histcounts(categorical(Label));
-expY = char(Y);
+[~, labelItera] = histcounts(categorical(Label));
 j = 0;
 cvErr = zeros(1, size(labelItera,2));
 
@@ -60,12 +59,65 @@ end
 
 %%
 % Linear Classifier Test with Original Input
-iteration = 10;
+% REPEAT = 10;
+% 
+% [a, labelItera] = histcounts(categorical(Label));
+% expY = char(Y);
+% cvErr = zeros(1, size(labelItera,2));
+% averageErr = zeros(REPEAT, size(cvErr, 2));
+% 
+% for rep = 1 : REPEAT
+%     j = 0;
+% % fprintf('Repeat for the %d time:\n', rep);
+% for i = labelItera
+%     j = j + 1;
+%     x = char(i);
+%     expY = char(Y);
+%     expY(expY ~= x) = 'N';
+%     expY(expY == x) = 'P';
+% 
+%     group = expY;   
+%     c = cvpartition(group,'KFold', 10);    
+%     acc = zeros(1, c.NumTestSets);
+% for k = 1 : c.NumTestSets
+%         trainIndex = c.training(k);
+%         testIndex = c.test(k);
+%         Mdl = fitclinear(X(trainIndex, :), expY(trainIndex, :), 'Learner','logistic');
+%         ytest = predict(Mdl, X(testIndex,:));
+%         EVAL = evaluate(char(expY(testIndex)), char(ytest));
+%         acc(k) = EVAL(1);
+% end     
+%         cvErr(j) = sum(acc)/c.NumTestSets;
+%        % fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
+% end
+%         averageErr(rep,:) = cvErr;
+% end
+
+%%
+% Experiment for Input Dimension Extended
+
+CAFeatureSize = 64*64;
+
+CAtemp1 =  zeros(16, 24);
+CAtemp2 = zeros(24, 64);
+extendX = zeros(size(X, 1), CAFeatureSize);
+for inCA = 1 : size(X,1)
+    img = reshape(X(inCA,:),  16, 16);
+    CAtemp = vertcat(CAtemp2, horzcat(CAtemp1, img, CAtemp1), CAtemp2);
+    output = zeros(size(CAtemp,1), size(CAtemp,2));
+    extendX(inCA,:) = reshape(CAtemp, 1, CAFeatureSize);    
+end
+    
+REPEAT = 10;
 
 [a, labelItera] = histcounts(categorical(Label));
 expY = char(Y);
-j = 0;
 cvErr = zeros(1, size(labelItera,2));
+averageErr = zeros(REPEAT, size(cvErr, 2));
+
+for rep = 1 : REPEAT
+    j = 0;
+% fprintf('Repeat for the %d time:\n', rep);
 for i = labelItera
     j = j + 1;
     x = char(i);
@@ -79,19 +131,17 @@ for i = labelItera
 for k = 1 : c.NumTestSets
         trainIndex = c.training(k);
         testIndex = c.test(k);
-        Mdl = fitclinear(X(trainIndex, :), expY(trainIndex, :));
-        ytest = predict(Mdl, X(testIndex,:));
+        Mdl = fitclinear(extendX(trainIndex, :), expY(trainIndex, :), 'Learner','logistic');
+        ytest = predict(Mdl, extendX(testIndex,:));
         EVAL = evaluate(char(expY(testIndex)), char(ytest));
         acc(k) = EVAL(1);
 end     
         cvErr(j) = sum(acc)/c.NumTestSets;
-        fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
-
+       % fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
+end
+        averageErr(rep,:) = cvErr;
 end
 
-
-%%
-% Experiment for Input Dimension Extendeed
 
 
 
