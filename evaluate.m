@@ -9,7 +9,7 @@
 % Output: EVAL = Row matrix with all the performance measures
 
 
-idx = (ACTUAL()==1);
+idx = (ACTUAL()=='N');
 
 p = length(ACTUAL(idx));
 n = length(ACTUAL(~idx));

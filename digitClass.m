@@ -27,12 +27,12 @@ Y = cellstr(num2str(Label)); % We need a cell to used the ClassName parameter in
 %%
 % Baseline Evalutation
 
-[a b] = histcounts(categorical(Label));
+[a, labelItera] = histcounts(categorical(Label));
 expY = char(Y);
 j = 0;
-cvErr = zeros(1, size(b,2));
+cvErr = zeros(1, size(labelItera,2));
 
-for i = b
+for i = labelItera
     j = j + 1;
     x = char(i);
     expY = char(Y);
@@ -42,20 +42,56 @@ for i = b
     group = expY;   
     c = cvpartition(group,'KFold', 10);    
     acc = zeros(1, c.NumTestSets);
-for i = 1 : c.NumTestSets
-        trainIndex = c.training(i);
-        testIndex = c.test(i);
-        ytest = dummyClassifier( X(testIndex, :), expY(trainIndex, :), 'Random');      %zeroRule or Random for baseline assessment
+for k = 1 : c.NumTestSets
+        trainIndex = c.training(k);
+        testIndex = c.test(k);
+        ytest = dummyClassifier( X(testIndex, :), expY(trainIndex, :), 'zeroRule');      %zeroRule or Random for baseline assessment
         EVAL = evaluate(char(expY(testIndex)), char(ytest));
         % confusionmat(char(ytest), char(Y(testIndex)));
         %err(i) = sum(~strcmp(ytest, Y(testIndex)));
-        acc(i) = EVAL(1);
+        acc(k) = EVAL(1);
 end     
         cvErr(j) = sum(acc)/c.NumTestSets;
+        fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
+
 end
 
 
 
+%%
+% Linear Classifier Test with Original Input
+iteration = 10;
+
+[a, labelItera] = histcounts(categorical(Label));
+expY = char(Y);
+j = 0;
+cvErr = zeros(1, size(labelItera,2));
+for i = labelItera
+    j = j + 1;
+    x = char(i);
+    expY = char(Y);
+    expY(expY ~= x) = 'N';
+    expY(expY == x) = 'P';
+
+    group = expY;   
+    c = cvpartition(group,'KFold', 10);    
+    acc = zeros(1, c.NumTestSets);
+for k = 1 : c.NumTestSets
+        trainIndex = c.training(k);
+        testIndex = c.test(k);
+        Mdl = fitclinear(X(trainIndex, :), expY(trainIndex, :));
+        ytest = predict(Mdl, X(testIndex,:));
+        EVAL = evaluate(char(expY(testIndex)), char(ytest));
+        acc(k) = EVAL(1);
+end     
+        cvErr(j) = sum(acc)/c.NumTestSets;
+        fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
+
+end
+
+
+%%
+% Experiment for Input Dimension Extendeed
 
 
 
@@ -83,14 +119,14 @@ end
 
 
 
-t = templateLinear('Lambda','auto', 'Learner','SVM','Regularization','lasso');
+%t = templateLinear('Lambda','auto', 'Learner','SVM','Regularization','lasso');
 % a cross-validation  (e.g., CrossVal), then n is the number of in-fold
 % observations -> auto
 
-c = cvpartition(group,'KFold',k); %group means equal size and distribution
+%c = cvpartition(group,'KFold',k); %group means equal size and distribution
 
-Mdl = fitcecoc(X, Y, 'Learners',t, 'CrossVal', 'on',  'KFold', 10,'Coding', 'onevsall', 'Verbose',1);
-kfoldLoss(Mdl, 'Mode', 'individual');
+%Mdl = fitcecoc(X, Y, 'Learners',t, 'CrossVal', 'on',  'KFold', 10,'Coding', 'onevsall', 'Verbose',1);
+%kfoldLoss(Mdl, 'Mode', 'individual');
 
 %%
 %
