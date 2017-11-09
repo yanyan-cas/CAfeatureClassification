@@ -25,10 +25,10 @@
 % Work with test files first 
 fprintf(1,'You first need to download files:\n train-images-idx3-ubyte.gz\n train-labels-idx1-ubyte.gz\n t10k-images-idx3-ubyte.gz\n t10k-labels-idx1-ubyte.gz\n from http://yann.lecun.com/exdb/mnist/\n and gunzip them \n'); 
 
-f = fopen('/Users/Yanyan/Documents/MATLAB/Data/digits/t10k-images-idx3-ubyte','r');
+f = fopen('/Users/Yanyan/Documents/MATLAB/DATASET/digits/t10k-images-idx3-ubyte','r');
 [a,count] = fread(f,4,'int32');
   
-g = fopen('/Users/Yanyan/Documents/MATLAB/Data/digits/t10k-labels-idx1-ubyte','r');
+g = fopen('/Users/Yanyan/Documents/MATLAB/DATASET/digits/t10k-labels-idx1-ubyte','r');
 [l,count] = fread(g,2,'int32');
 
 fprintf(1,'Starting to convert Test MNIST images (prints 10 dots) \n'); 
@@ -61,10 +61,10 @@ end;
 
 
 % Work with trainig files second  
-f = fopen('/Users/Yanyan/Documents/MATLAB/Data/digits/train-images-idx3-ubyte','r');
+f = fopen('/Users/Yanyan/Documents/MATLAB/DATASET/digits/train-images-idx3-ubyte','r');
 [a,count] = fread(f,4,'int32');
 
-g = fopen('/Users/Yanyan/Documents/MATLAB/Data/digits/train-labels-idx1-ubyte','r');
+g = fopen('/Users/Yanyan/Documents/MATLAB/DATASET/digits/train-labels-idx1-ubyte','r');
 [l,count] = fread(g,2,'int32');
 
 fprintf(1,'Starting to convert Training MNIST images (prints 60 dots)\n'); 

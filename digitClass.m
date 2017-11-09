@@ -12,6 +12,8 @@
 fprintf('Loading semeion.data file\n'); 
 
 raw = load('semeion.data.txt');
+
+
 Data = raw(:,1:256);
 rawLabel = raw(:,257:266);
 
@@ -26,77 +28,77 @@ Y = cellstr(num2str(Label)); % We need a cell to used the ClassName parameter in
 
 %%
 % Baseline Evalutation
-
-[~, labelItera] = histcounts(categorical(Label));
-j = 0;
-cvErr = zeros(1, size(labelItera,2));
-
-for i = labelItera
-    j = j + 1;
-    x = char(i);
-    expY = char(Y);
-    expY(expY ~= x) = 'N';
-    expY(expY == x) = 'P';
-
-    group = expY;   
-    c = cvpartition(group,'KFold', 10);    
-    acc = zeros(1, c.NumTestSets);
-for k = 1 : c.NumTestSets
-        trainIndex = c.training(k);
-        testIndex = c.test(k);
-        ytest = dummyClassifier( X(testIndex, :), expY(trainIndex, :), 'zeroRule');      %zeroRule or Random for baseline assessment
-        EVAL = evaluate(char(expY(testIndex)), char(ytest));
-        % confusionmat(char(ytest), char(Y(testIndex)));
-        %err(i) = sum(~strcmp(ytest, Y(testIndex)));
-        acc(k) = EVAL(1);
-end     
-        cvErr(j) = sum(acc)/c.NumTestSets;
-        fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
-
-end
-
-save('baseline.mat', 'cvErr');
+% 
+% [~, labelItera] = histcounts(categorical(Label));
+% j = 0;
+% cvErr = zeros(1, size(labelItera,2));
+% 
+% for i = labelItera
+%     j = j + 1;
+%     x = char(i);
+%     expY = char(Y);
+%     expY(expY ~= x) = 'N';
+%     expY(expY == x) = 'P';
+% 
+%     group = expY;   
+%     c = cvpartition(group,'KFold', 10);    
+%     acc = zeros(1, c.NumTestSets);
+% for k = 1 : c.NumTestSets
+%         trainIndex = c.training(k);
+%         testIndex = c.test(k);
+%         ytest = dummyClassifier( X(testIndex, :), expY(trainIndex, :), 'zeroRule');      %zeroRule or Random for baseline assessment
+%         EVAL = evaluate(char(expY(testIndex)), char(ytest));
+%         % confusionmat(char(ytest), char(Y(testIndex)));
+%         %err(i) = sum(~strcmp(ytest, Y(testIndex)));
+%         acc(k) = EVAL(1);
+% end     
+%         cvErr(j) = sum(acc)/c.NumTestSets;
+%         fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
+% 
+% end
+% 
+% save('baseline.mat', 'cvErr');
 
 
 %%
 % Linear Classifier Test with Original Input
-REPEAT = 10;
-
-[~, labelItera] = histcounts(categorical(Label));
-cvErr = zeros(1, size(labelItera,2));
-averageErr = zeros(REPEAT, size(cvErr, 2));
-
-for rep = 1 : REPEAT
-    j = 0;
-% fprintf('Repeat for the %d time:\n', rep);
-for i = labelItera
-    j = j + 1;
-    x = char(i);
-    expY = char(Y);
-    expY(expY ~= x) = 'N';
-    expY(expY == x) = 'P';
-    group = expY;   
-    c = cvpartition(group,'KFold', 10);    
-    acc = zeros(1, c.NumTestSets);
-for k = 1 : c.NumTestSets
-        trainIndex = c.training(k);
-        testIndex = c.test(k);
-        Mdl = fitclinear(X(trainIndex, :), expY(trainIndex, :), 'Learner','logistic');
-        ytest = predict(Mdl, X(testIndex,:));
-        EVAL = evaluate(char(expY(testIndex)), char(ytest));
-        acc(k) = EVAL(1);
-end     
-        cvErr(j) = sum(acc)/c.NumTestSets;
-       % fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
-end
-        averageErr(rep,:) = cvErr;
-end
-
-save('originLinear.mat', char(averageErr));
+% REPEAT = 10;
+% 
+% [~, labelItera] = histcounts(categorical(Label));
+% cvErr = zeros(1, size(labelItera,2));
+% averageErr = zeros(REPEAT, size(cvErr, 2));
+% 
+% for rep = 1 : REPEAT
+%     j = 0;
+% % fprintf('Repeat for the %d time:\n', rep);
+% for i = labelItera
+%     j = j + 1;
+%     x = char(i);
+%     expY = char(Y);
+%     expY(expY ~= x) = 'N';
+%     expY(expY == x) = 'P';
+%     group = expY;   
+%     c = cvpartition(group,'KFold', 10);    
+%     acc = zeros(1, c.NumTestSets);
+% for k = 1 : c.NumTestSets
+%         trainIndex = c.training(k);
+%         testIndex = c.test(k);
+%         Mdl = fitclinear(X(trainIndex, :), expY(trainIndex, :), 'Learner','logistic');
+%         ytest = predict(Mdl, X(testIndex,:));
+%         EVAL = evaluate(char(expY(testIndex)), char(ytest));
+%         acc(k) = EVAL(1);
+% end     
+%         cvErr(j) = sum(acc)/c.NumTestSets;
+%        % fprintf('Digital number %s the baseline classfication accuracy is %f \n', x, cvErr(j) );
+% end
+%         averageErr(rep,:) = cvErr;
+% end
+% 
+% save('originLinear.mat', 'averageErr');
 
 %%
 % Experiment for Input Dimension Extended
-
+% 
 CAFeatureSize = 64*64;
 
 CAtemp1 =  zeros(16, 24);
@@ -152,13 +154,12 @@ save('nonCALinear.mat', 'averageErr');
 boundary = 'NullBoundary';
 
 %CAEvol = 12;
+ruleTest = [451 511]; %[128 257 324 394 402 417 256 258 385 386 416];
 
-for CAEvol = 1 : 16
+for ruleNo = ruleTest
     
-
-
-for ruleNo = 1 : 511
-    
+for CAEvol = 10 : 16
+   
 CAFeatureSize = 64*64;
 
 CAtemp1 =  zeros(16, 24);
@@ -180,10 +181,10 @@ end
     evolveX(inCA,:) = reshape(output, 1, CAFeatureSize);    
 end
     
-REPEAT = 50;
+REPEAT = 30;
 
 [a, labelItera] = histcounts(categorical(Label));
-expY = char(Y);
+%expY = char(Y);
 cvErr = zeros(1, size(labelItera,2));
 averageErr = zeros(REPEAT, size(cvErr, 2));
 
