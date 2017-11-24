@@ -33,7 +33,7 @@ for i = 1 : size(trainRaw,1)
     tmp = reshape(trainRaw(i,:), [1,32*32,3]);
     tmp2 = rgb2gray(tmp);
     tmp3 = imbinarize(tmp2);
-    trainData(i,:) = double(tmp3);
+    trainData(i,:) = bin2double(tmp3);
 end
 
 % testData = zeros(size(testRaw,1), 32 *32);
